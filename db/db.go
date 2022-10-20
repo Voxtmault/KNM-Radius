@@ -10,9 +10,6 @@ import (
 var db *sql.DB
 var err error
 
-//Change This Name Accoridngly
-var KominfoDB = "phoenix.crossnet.co.id:38600"
-
 func Init() {
 	conf := config.GetConfig()
 
