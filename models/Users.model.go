@@ -1,13 +1,9 @@
 package models
 
 import (
-	"CNM_Radius/db"
+	"KNM-Radius/db"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 type Users struct {
@@ -67,137 +63,59 @@ func GetAllUsers() (Response, error) {
 	return res, nil
 }
 
-func CreateNewUser(username string, sid string, max_device int, email string, mobilephone int, address string, planname string, paymentMethod string, ordertaker string, expiredate int, profile string) (Response, error) {
+func CreateNewUser(userCredentials string, maxUse int, expiredate int, profile string, sessionTimeout int, idleTimeout int, userCreator string) (Response, error) {
 	//How to Create New Users
-	//1. Add to RadUserGroup
-	//2. Add to UserInfo
-	//3. Add to UserBillInfo
-	//4. Add to RadCheck
+	//1. Add to RadCheck (For Password & Max user per account)
+	//2. Add to RadReply (For Session-Timeout & Idle-Timout)
+	//3. Add to RadUserGroup (For Profile)
 	var res Response
-	var createdID int
 
-	var templateUsername, temp string
-	var hitResult int
-
-	templateUsername = sid + username
-	temp = ""
-	hitResult = 0
 	con := db.CreateCon()
 
-	verifyPlanNameStatement := "SELECT planname FROM billing_plans WHERE planName = ?"
-	verifyResult, err := con.Query(verifyPlanNameStatement, planname)
+	radCheckStatement := "INSERT INTO radcheck (username, attribute, op, value) VALUES(?,?,?,?)"
+	radReplyStatement := "INSERT INTO radreply(username, attribute, op, value) VALUES(?,?,?,?)"
+	radProfileStatement := "INSERT INTO radusergroup(username, groupname,priority) VALUES(?,?,?)"
+
+	//1
+	checkSTMT, err := con.Prepare(radCheckStatement)
+
+	_, err = checkSTMT.Exec(userCredentials, "Cleartext-Password", ":=", userCredentials)
 	if err != nil {
 		return res, err
 	}
 
-	for verifyResult.Next() {
-		err = verifyResult.Scan(&temp)
-		if err != nil {
-			return res, err
-		}
-
-		if len(temp) > 0 {
-			//fmt.Println(temp)
-			hitResult++
-		}
+	_, err = checkSTMT.Exec(userCredentials, "Simultaneous-Use", ":=", maxUse)
+	if err != nil {
+		return res, err
 	}
+	defer checkSTMT.Close()
 
-	temp = ""
+	//2
+	replySTMT, err := con.Prepare(radReplyStatement)
 
-	verifyProfileNameStatement := "SELECT groupname FROM radgroupreply WHERE groupname = ?"
-	verifyProfileResult, err := con.Query(verifyProfileNameStatement, profile)
+	_, err = replySTMT.Exec(userCredentials, "Session-Timeout", ":=", sessionTimeout)
 	if err != nil {
 		return res, err
 	}
 
-	for verifyProfileResult.Next() {
-		err = verifyProfileResult.Scan(&temp)
-		if err != nil {
-			return res, err
-		}
-
-		if len(temp) > 0 {
-			//fmt.Println(temp)
-			hitResult++
-		}
+	_, err = replySTMT.Exec(userCredentials, "Idle-Timeout", ":=", idleTimeout)
+	if err != nil {
+		return res, err
 	}
+	defer replySTMT.Close()
 
-	if hitResult >= 2 {
-		userGroupStatement := "INSERT INTO radusergroup(username, groupname, priority) VALUES(?,?,?)"
-		userInfoStatement := "INSERT INTO userinfo(username, firstname, email, mobilephone, address, creationdate, creationby) VALUES(?,?,?,?,?,?,?)"
-		userBillInfoStatement := "INSERT INTO userbillinfo(username, planName, email, phone, address, paymentmethod, ordertaker, creationdate, creationby, hotspot_id) VALUES(?,?,?,?,?,?,?,?,?,?)"
-		radCheckStatement := "INSERT INTO radcheck (username, attribute, op, value) VALUES(?,?,?,?)"
+	//3
+	groupSTMT, err := con.Prepare(radProfileStatement)
 
-		stmt, err := con.Prepare(radCheckStatement)
-
-		for i := 0; i < max_device; i++ {
-			if i == 0 {
-				result, err := stmt.Exec(templateUsername, "Cleartext-Password", ":=", templateUsername)
-				if err != nil {
-					return res, err
-				}
-
-				_, err = stmt.Exec(templateUsername, "Expiration", ":=", time.Now().Add(time.Hour*24*time.Duration(expiredate)).Format("02 Jan 2006"))
-				if err != nil {
-					return res, err
-				}
-
-				_, err = con.Query(userGroupStatement, templateUsername, profile, 0)
-				if err != nil {
-					return res, err
-				}
-
-				affected, _ := result.RowsAffected()
-				if affected > 0 {
-					createdID++
-				}
-			} else {
-				result, err := stmt.Exec(templateUsername+"-"+strconv.Itoa(i), "Cleartext-Password", ":=", templateUsername+"-"+strconv.Itoa(i))
-				if err != nil {
-					return res, err
-				}
-
-				_, err = stmt.Exec(templateUsername+"-"+strconv.Itoa(i), "Expiration", ":=", time.Now().Add(time.Hour*24*time.Duration(expiredate)).Format("02 Jan 2006"))
-				if err != nil {
-					return res, err
-				}
-
-				_, err = con.Query(userGroupStatement, templateUsername+"-"+strconv.Itoa(i), profile, 0)
-				if err != nil {
-					return res, err
-				}
-
-				affected, _ := result.RowsAffected()
-				if affected > 0 {
-					createdID++
-				}
-			}
-
-			_, err = con.Query(userInfoStatement, email, username, email, mobilephone, address, time.Now().Format("2006-01-02 15:04"), "CNM-System")
-			if err != nil {
-				return res, err
-			}
-
-			_, err = con.Query(userBillInfoStatement, username, planname, email, mobilephone, address, paymentMethod, ordertaker, time.Now().Format("2006-01-02 15:04"), "CNM-System", sid)
-			if err != nil {
-				return res, err
-			}
-		}
-
-		if err != nil {
-			return res, err
-		}
-
-		res.Status = http.StatusOK
-		res.Message = "Success"
-		res.Data = map[string]int{
-			"User Created": createdID,
-		}
-	} else {
-		res.Status = http.StatusInternalServerError
-		res.Message = "Plan name or Profile not found ! Please check your information again !"
-		res.Data = ""
+	_, err = groupSTMT.Exec(userCredentials, profile, 0)
+	if err != nil {
+		return res, err
 	}
+	defer groupSTMT.Close()
+
+	res.Status = http.StatusOK
+	res.Message = "Success Creating User: " + userCredentials
+	res.Data = ""
 
 	return res, nil
 }
@@ -210,87 +128,4 @@ func UnmarshalTemperatures(data []byte) (Temperatures, error) {
 
 func (r *Temperatures) Marshal() ([]byte, error) {
 	return json.Marshal(r)
-}
-
-func AddChildToUser() (Response, error) {
-	var res Response
-
-	result, err := http.Get(db.GetActiveUserIP())
-	if err != nil {
-		return res, err
-	}
-
-	defer result.Body.Close()
-
-	body, _ := ioutil.ReadAll(result.Body)
-	smt, err := UnmarshalTemperatures(body)
-
-	//PrintChild(smt)
-
-	res.Status = http.StatusOK
-	res.Message = "Success"
-	res.Data = smt
-	return res, nil
-}
-
-func PrintChild(data Temperatures) {
-	for i := 0; i < len(data); i++ {
-		fmt.Println("User: ", data[i].User)
-	}
-}
-
-func GetActiveUsers() (Response, error) {
-	var res Response
-
-	resp, err := http.Get("http://10.10.10.232/api-mikrotik-main/hotspotactive.php")
-	if err != nil {
-		return res, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	result, err := UnmarshalTemperatures([]byte(body))
-
-	res.Status = http.StatusOK
-	res.Message = "Sucess Getting All Active Users"
-	res.Data = result
-
-	return res, nil
-}
-
-func GetAvailableUser(sid string, username string) (Response, error) {
-	var res Response
-	var obj Users
-	var arrObj []Users
-	var templateUsername string
-
-	con := db.CreateCon()
-	templateUsername = sid + username
-
-	sqlStatement := "SELECT username FROM radcheck WHERE username LIKE ? AND attribute = 'Cleartext-Password'"
-
-	result, err := con.Query(sqlStatement, templateUsername+"%")
-
-	defer result.Close()
-
-	if err != nil {
-		return res, err
-	}
-
-	for result.Next() {
-		err = result.Scan(&obj.Username)
-
-		if err != nil {
-			return res, nil
-		}
-
-		arrObj = append(arrObj, obj)
-	}
-
-	res.Status = http.StatusOK
-	res.Message = "Success"
-	res.Data = arrObj
-
-	return res, nil
 }

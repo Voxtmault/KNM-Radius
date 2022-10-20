@@ -1,7 +1,7 @@
 package models
 
 import (
-	"CNM_Radius/db"
+	"KNM-Radius/db"
 	"net/http"
 )
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"CNM_Radius/db"
-	"CNM_Radius/routes"
+	"KNM-Radius/db"
+	"KNM-Radius/routes"
 )
 
 func main() {
@@ -10,5 +10,5 @@ func main() {
 
 	e := routes.Init()
 
-	e.Logger.Fatal(e.Start(":38700"))
+	e.Logger.Fatal(e.Start(":38900"))
 }

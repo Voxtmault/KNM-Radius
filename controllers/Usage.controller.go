@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"CNM_Radius/models"
+	"KNM-Radius/models"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )

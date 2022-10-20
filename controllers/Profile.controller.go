@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"CNM_Radius/models"
+	"KNM-Radius/models"
 	"net/http"
 	"strconv"
 

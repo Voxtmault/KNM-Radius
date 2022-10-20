@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CNM_Radius.iml" filepath="$PROJECT_DIR$/.idea/CNM_Radius.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/KNM-Radius.iml" filepath="$PROJECT_DIR$/.idea/KNM-Radius.iml" />
     </modules>
   </component>
 </project>

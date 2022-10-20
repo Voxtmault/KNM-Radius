@@ -1,7 +1,7 @@
 package db
 
 import (
-	"CNM_Radius/config"
+	"KNM-Radius/config"
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -10,8 +10,8 @@ import (
 var db *sql.DB
 var err error
 
-var activeUserIP = "http://10.10.10.232/api-mikrotik-main/hotspotactive.php"
-var PhoenixDB = "phoenix.crossnet.co.id:38600"
+//Change This Name Accoridngly
+var KominfoDB = "phoenix.crossnet.co.id:38600"
 
 func Init() {
 	conf := config.GetConfig()
@@ -35,12 +35,4 @@ func Init() {
 
 func CreateCon() *sql.DB {
 	return db
-}
-
-func GetActiveUserIP() string {
-	return activeUserIP
-}
-
-func GetApplicationIP() string {
-	return PhoenixDB
 }
