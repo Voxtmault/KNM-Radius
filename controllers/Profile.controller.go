@@ -24,6 +24,18 @@ func CreateNewProfileController(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func DeleteProfileController(c echo.Context) error {
+	profileName := c.FormValue("profileName")
+
+	result, err := models.DeleteProfile(profileName)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetProfileHotspot(c echo.Context) error {
 	result, err := models.GetProfileHotspot()
 

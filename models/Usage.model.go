@@ -17,7 +17,7 @@ func GetUserUsage(username string) (Response, error) {
 	var selectedRow int
 	var obj, template Usage
 
-	con := db.CreateCon()
+	radiusConnection := db.CreateRadiusCon()
 
 	template.Username = username
 	template.Download = 0
@@ -25,7 +25,7 @@ func GetUserUsage(username string) (Response, error) {
 	template.Uptime = 0
 
 	verifyStatement := "SELECT COUNT(*) FROM radacct WHERE username = ?"
-	verifyResult, err := con.Query(verifyStatement, username)
+	verifyResult, err := radiusConnection.Query(verifyStatement, username)
 	if err != nil {
 		return res, err
 	}
@@ -41,7 +41,7 @@ func GetUserUsage(username string) (Response, error) {
 	if selectedRow > 0 {
 		usageStatement := "SELECT username, SUM(acctsessiontime), SUM(acctinputoctets), SUM(acctoutputoctets) FROM radacct WHERE username = ?"
 
-		result, err := con.Query(usageStatement, username)
+		result, err := radiusConnection.Query(usageStatement, username)
 		if err != nil {
 			return res, err
 		}

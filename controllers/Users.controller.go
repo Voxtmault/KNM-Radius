@@ -8,20 +8,52 @@ import (
 )
 
 func CreateUserController(c echo.Context) error {
-	//userCredentials string, maxUse int, expiredate int, profile string, sessionTimeout int, idleTimeout int, userCreator string
+	//userCredentials string, expireDate int, profile string, sessionTimeout int, idleTimeout int, deviceOwner string, deviceInfo string
 	userCredentials := c.FormValue("userCredentials")
-	maxUse := c.FormValue("maxUse")
-	parsedMaxuse, _ := strconv.Atoi(maxUse)
 	expiredDate := c.FormValue("expiredDate")
 	parsedExDate, _ := strconv.Atoi(expiredDate)
+	profileName := c.FormValue("profileName")
 	sessionTimeout := c.FormValue("sessionTimeout")
 	parsedSession, _ := strconv.Atoi(sessionTimeout)
 	idleTimeout := c.FormValue("idleTimeout")
 	parsedIdle, _ := strconv.Atoi(idleTimeout)
-	userCreator := c.FormValue("userCreator")
-	profileName := c.FormValue("profileName")
+	deviceOwner := c.FormValue("deviceOwner")
+	deviceInfo := c.FormValue("deviceInfo")
 
-	result, err := models.CreateNewUser(userCredentials, parsedMaxuse, parsedExDate, profileName, parsedSession, parsedIdle, userCreator)
+	result, err := models.CreateNewUser(userCredentials, parsedExDate, profileName, parsedSession, parsedIdle, deviceOwner, deviceInfo)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func DeleteUserController(c echo.Context) error {
+	userCredentials := c.FormValue("username")
+
+	result, err := models.DeleteUser(userCredentials)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func EditUserController(c echo.Context) error {
+	userCredentials := c.FormValue("userCredentials")
+	expiredDate := c.FormValue("expiredDate")
+	parsedExDate, _ := strconv.Atoi(expiredDate)
+	profileName := c.FormValue("profileName")
+	sessionTimeout := c.FormValue("sessionTimeout")
+	parsedSession, _ := strconv.Atoi(sessionTimeout)
+	idleTimeout := c.FormValue("idleTimeout")
+	parsedIdle, _ := strconv.Atoi(idleTimeout)
+	deviceOwner := c.FormValue("deviceOwner")
+	deviceInfo := c.FormValue("deviceInfo")
+
+	result, err := models.EditUser(userCredentials, parsedExDate, profileName, parsedSession, parsedIdle, deviceOwner, deviceInfo)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})

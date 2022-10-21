@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	db.Init()
+	db.Init(0)
+	db.Init(1)
 
 	e := routes.Init()
 

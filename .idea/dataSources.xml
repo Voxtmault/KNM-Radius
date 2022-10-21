@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="cnm_radius@192.168.1.242" uuid="2f37edce-e693-44b9-b7a5-325871df633e">
+    <data-source source="LOCAL" name="Radius" uuid="2f37edce-e693-44b9-b7a5-325871df633e">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://192.168.1.242:3306/cnm_radius</jdbc-url>
+      <jdbc-url>jdbc:mariadb://192.168.1.242:3306/radius</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="Admin DB" uuid="a4e709cd-4b05-4dda-b9bf-680933c54fec">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://phoenix.crossnet.co.id:3306/knm</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

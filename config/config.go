@@ -3,11 +3,16 @@ package config
 import "github.com/tkanos/gonfig"
 
 type Configuration struct {
-	DB_USERNAME string
-	DB_PASSWORD string
-	DB_PORT     string
-	DB_HOST     string
-	DB_NAME     string
+	PHOENIX_DB_USERNAME string
+	PHOENIX_DB_PASSWORD string
+	PHOENIX_DB_PORT     string
+	PHOENIX_DB_HOST     string
+	PHOENIX_DB_NAME     string
+	RADIUS_DB_USERNAME  string
+	RADIUS_DB_PASSWORD  string
+	RADIUS_DB_PORT      string
+	RADIUS_DB_HOST      string
+	RADIUS_DB_NAME      string
 }
 
 func GetConfig() Configuration {

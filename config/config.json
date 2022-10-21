@@ -1,7 +1,12 @@
 {
-  "DB_USERNAME" : "Credentials DB Goes Here",
-  "DB_PASSWORD" : "Credentials DB Also Goes Here",
-  "DB_PORT" : "Default SQL Port",
-  "DB_HOST" : "DB IP Goes Here",
-  "DB_NAME" : "DB Name Goes Here"
+  "PHOENIX_DB_USERNAME" : "user",
+  "PHOENIX_DB_PASSWORD" : "xyz13juli",
+  "PHOENIX_DB_PORT" : "3306",
+  "PHOENIX_DB_HOST" : "phoenix.crossnet.co.id",
+  "PHOENIX_DB_NAME" : "knm",
+  "RADIUS_DB_USERNAME" : "user",
+  "RADIUS_DB_PASSWORD" : "xyz13juli",
+  "RADIUS_DB_PORT" : "3306",
+  "RADIUS_DB_HOST" : "192.168.1.242",
+  "RADIUS_DB_NAME" : "radius"
 }

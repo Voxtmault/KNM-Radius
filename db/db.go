@@ -7,29 +7,54 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var radiusDB, adminDB *sql.DB
 var err error
 
-func Init() {
+func Init(connectTo int) {
+	var connectionString string
+
 	conf := config.GetConfig()
 
 	//DSN Full Format
 	//username:password@protocol(address)/dbname?param=value
-	connectionString := conf.DB_USERNAME + ":" + conf.DB_PASSWORD + "@tcp(" + conf.DB_HOST + ":" + conf.DB_PORT + ")/" + conf.DB_NAME
 
-	db, err = sql.Open("mysql", connectionString)
+	if connectTo == 0 {
+		//Connect to Radius (Authentication Server)
+		connectionString = conf.RADIUS_DB_USERNAME + ":" + conf.RADIUS_DB_PASSWORD + "@tcp(" + conf.RADIUS_DB_HOST + ":" + conf.RADIUS_DB_PORT + ")/" + conf.RADIUS_DB_NAME
+		radiusDB, err = sql.Open("mysql", connectionString)
 
-	if err != nil {
+		if err != nil {
+			panic(err)
+		}
+
+		err := radiusDB.Ping()
+
+		if err != nil {
+			panic("DSN Error")
+		}
+	} else if connectTo == 1 {
+		//Connect to Phoenix (Admin Server)
+		connectionString = conf.PHOENIX_DB_USERNAME + ":" + conf.PHOENIX_DB_PASSWORD + "@tcp(" + conf.PHOENIX_DB_HOST + ":" + conf.PHOENIX_DB_PORT + ")/" + conf.PHOENIX_DB_NAME
+		adminDB, err = sql.Open("mysql", connectionString)
+
+		if err != nil {
+			panic(err)
+		}
+
+		err := adminDB.Ping()
+
+		if err != nil {
+			panic("DSN Error")
+		}
+	} else {
 		panic(err)
-	}
-
-	err := db.Ping()
-
-	if err != nil {
-		panic("DSN Error")
 	}
 }
 
-func CreateCon() *sql.DB {
-	return db
+func CreateRadiusCon() *sql.DB {
+	return radiusDB
+}
+
+func CreateAdminCon() *sql.DB {
+	return adminDB
 }

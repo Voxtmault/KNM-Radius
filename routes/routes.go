@@ -21,9 +21,19 @@ func Init() *echo.Echo {
 
 	//e.GET("/GetAvailableUsers", controllers.GetAvailableUsersController)
 
-	//e.GET("/GetProfileHotspot", controllers.GetProfileHotspot)
+	e.GET("/GetProfileHotspot", controllers.GetProfileHotspot)
+
+	e.GET("/AdminLogin", controllers.LoginController)
 
 	e.POST("/CreateNewUser", controllers.CreateUserController)
+
+	e.POST("/DeleteUser", controllers.DeleteUserController)
+
+	e.POST("/EditUser", controllers.EditUserController)
+
+	e.POST("/CreateNewProfile", controllers.CreateNewProfileController)
+
+	e.POST("/DeleteProfile", controllers.DeleteProfileController)
 
 	return e
 }
