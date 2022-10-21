@@ -25,6 +25,8 @@ func Init() *echo.Echo {
 
 	e.GET("/AdminLogin", controllers.LoginController)
 
+	e.GET("/GetAllUsers", controllers.GetAllUsersController)
+
 	e.POST("/CreateNewUser", controllers.CreateUserController)
 
 	e.POST("/DeleteUser", controllers.DeleteUserController)

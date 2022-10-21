@@ -5,19 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2c12c7e-a3b7-4a04-b179-412a5d911471" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/controllers/login.controller.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/login.model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/Profile.controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/Profile.controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/Users.controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/Users.controller.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/db.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/Profile.model.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/Profile.model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/Usage.model.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/Usage.model.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/Users.model.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/Users.model.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
     </list>

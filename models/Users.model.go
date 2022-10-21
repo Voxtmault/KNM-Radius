@@ -47,7 +47,7 @@ func GetAllUsers() (Response, error) {
 
 	radiusConnection := db.CreateRadiusCon()
 
-	sqlStatement := "SELECT username from radcheck"
+	sqlStatement := "SELECT distinct username from radcheck"
 
 	result, err := radiusConnection.Query(sqlStatement)
 

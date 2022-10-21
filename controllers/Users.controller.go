@@ -7,6 +7,16 @@ import (
 	"strconv"
 )
 
+func GetAllUsersController(c echo.Context) error {
+	result, err := models.GetAllUsers()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func CreateUserController(c echo.Context) error {
 	//userCredentials string, expireDate int, profile string, sessionTimeout int, idleTimeout int, deviceOwner string, deviceInfo string
 	userCredentials := c.FormValue("userCredentials")
