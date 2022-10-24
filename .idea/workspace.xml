@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2c12c7e-a3b7-4a04-b179-412a5d911471" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a4e709cd-4b05-4dda-b9bf-680933c54fec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a4e709cd-4b05-4dda-b9bf-680933c54fec.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/Users.controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/Users.controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/Users.model.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/Users.model.go" afterDir="false" />
@@ -46,7 +47,8 @@
     "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
-    "last_opened_file_path": "C:/Users/asus/GolandProjects/CNM-Radius"
+    "last_opened_file_path": "C:/Users/asus/GolandProjects/KNM-Radius",
+    "settings.editor.selected.configurable": "database.query.execution"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [

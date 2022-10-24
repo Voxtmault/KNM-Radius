@@ -2,7 +2,6 @@ package models
 
 import (
 	"KNM-Radius/db"
-	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -11,33 +10,20 @@ type Users struct {
 	Username string `json:username`
 }
 
-type Temperatures []ActiveUsers
-
-type ActiveUsers struct {
-	ID               string `json:".id"`
-	Server           string `json:"server"`
-	User             string `json:"user"`
-	Address          string `json:"address"`
-	MACAddress       string `json:"mac-address"`
-	LoginBy          string `json:"login-by"`
-	Uptime           string `json:"uptime"`
-	IdleTime         string `json:"idle-time"`
-	KeepaliveTimeout string `json:"keepalive-timeout"`
-	BytesIn          string `json:"bytes-in"`
-	BytesOut         string `json:"bytes-out"`
-	PacketsIn        string `json:"packets-in"`
-	PacketsOut       string `json:"packets-out"`
-	Radius           string `json:"radius"`
-}
-
 type User struct {
 	MAC           string `json:mac`
 	AccountName   string `json:name`
 	DeviceInfo    string `json:device`
-	ExpireDate    int    `json:expireDate`
-	SessionTimout int    `json:sessionTimeout`
-	IdleTimeout   int    `json:idleTimeout`
+	ExpireDate    string `json:expireDate`
+	SessionTimout string `json:sessionTimeout`
+	IdleTimeout   string `json:idleTimeout`
 	ProfileName   string `json:profile`
+	MaxDevice     string `json:max_device`
+}
+
+type UserProfile struct {
+	Username  string `json:Username`
+	Groupname string `json:Groupname `
 }
 
 func GetAllUsers() (Response, error) {
@@ -74,19 +60,151 @@ func GetAllUsers() (Response, error) {
 	return res, nil
 }
 
-func GetUser(userCredentials string) (Response, error) {
+func GetUserInfo(userCredentials string) (Response, error) {
 	//How to Get Users Info
-	//1. Get MAC Address and ExpiredDate from RadCheck
+	//1. Get MAC Address and ExpiredDate from RadCheck (MAC Addr can also be assigned from param)
 	//2. Get SessionTimeout and IdleTimeout from RadReply
 	//3. Get ProfileName from RadUserGroup
 	//4. Get AccountName and DeviceInfo from UserInfo
 	var res Response
-	//var obj User
+	var obj User
 
-	//radiusConnecton := db.CreateRadiusCon()
+	radiusConnecton := db.CreateRadiusCon()
 
-	//radCheckStatement := "SELECT username, attribute, value FROM radcheck WHERE username = ?"
-	//radReplyStatement := "SELECT username, attribute, value FROM radreply WHERE username = ?"
+	//Order will be : 1. Cleartext Password, Expiration, Simultaneous Use
+	radCheckStatement := "SELECT (SELECT coalesce(value, '') from radcheck WHERE username = ? AND attribute = \"Cleartext-Password\") as Password, coalesce((SELECT value from radcheck WHERE username = ? AND attribute = \"Expiration\"), \"0\") as Expiration, (SELECT coalesce(value, 1) from radcheck WHERE username = ? AND attribute = \"Simultaneous-Use\") as \"Max Use\" from radcheck where username = ? ORDER BY id"
+
+	radReplyStatement := "SELECT (SELECT coalesce(value, 0) from radreply WHERE username = ? AND attribute = \"Session-Timeout\") as \"Session Timeout\", (SELECT coalesce(value, 0) from radreply WHERE username = ? AND attribute = \"Idle-Timeout\") as \"Idle Timeout\" FROM radreply where username = ? ORDER BY id"
+	radGroupStatement := "SELECT groupname FROM radusergroup WHERE username = ?"
+	userInfoStatement := "SELECT coalesce(firstname, \"Unavailable\") , coalesce(lastname, \"Unavailable\") FROM userinfo WHERE username = ?"
+
+	//1
+	radCheckResult, err := radiusConnecton.Query(radCheckStatement, userCredentials, userCredentials, userCredentials, userCredentials)
+	if err != nil {
+		return res, err
+	}
+
+	for radCheckResult.Next() {
+		err = radCheckResult.Scan(&obj.MAC, &obj.ExpireDate, &obj.MaxDevice)
+		if err != nil {
+			return res, err
+		}
+		break
+	}
+
+	if obj.ExpireDate == "0" {
+		obj.ExpireDate = "Forever"
+	}
+
+	obj.MaxDevice += " Device(s)"
+
+	//2
+	radReplyResult, err := radiusConnecton.Query(radReplyStatement, userCredentials, userCredentials, userCredentials)
+	if err != nil {
+		return res, err
+	}
+
+	for radReplyResult.Next() {
+		err = radReplyResult.Scan(&obj.SessionTimout, &obj.IdleTimeout)
+		if err != nil {
+			return res, err
+		}
+		break
+	}
+
+	if obj.SessionTimout == "" {
+		obj.SessionTimout = "No Session Timeouts"
+	} else {
+		obj.SessionTimout += " Second(s)"
+	}
+
+	if obj.IdleTimeout == "" {
+		obj.IdleTimeout = "No Idle Timeout"
+	} else {
+		obj.IdleTimeout += " Second(s)"
+	}
+
+	//3
+	radGroupResult, err := radiusConnecton.Query(radGroupStatement, userCredentials)
+	if err != nil {
+		return res, err
+	}
+
+	for radGroupResult.Next() {
+		err = radGroupResult.Scan(&obj.ProfileName)
+		if err != nil {
+			return res, err
+		}
+
+		break
+	}
+
+	if obj.ProfileName == "" {
+		obj.ProfileName = "No Profile Selected"
+	}
+
+	//4
+	userInfoResult, err := radiusConnecton.Query(userInfoStatement, userCredentials)
+	if err != nil {
+		return res, err
+	}
+
+	for userInfoResult.Next() {
+		err = userInfoResult.Scan(&obj.AccountName, &obj.DeviceInfo)
+	}
+
+	if obj.AccountName == "" {
+		obj.AccountName = "Data Unavailable"
+	}
+
+	if obj.DeviceInfo == "" {
+		obj.DeviceInfo = "Data Unavailable"
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = obj
+
+	return res, nil
+}
+
+func GetAllUsersInfo() (Response, error) {
+	var obj User
+	var arrObj []User
+	var res Response
+
+	radiusConnection := db.CreateRadiusCon()
+
+	sqlStatement := "SELECT coalesce(username, ''), coalesce(firstname, \"Unavailable\"), coalesce(lastname, \"Unavailable\") from userinfo order by id"
+
+	result, err := radiusConnection.Query(sqlStatement)
+
+	defer result.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	for result.Next() {
+		err = result.Scan(&obj.MAC, &obj.AccountName, &obj.DeviceInfo)
+
+		if err != nil {
+			return res, nil
+		}
+
+		if len(obj.AccountName) == 0 {
+			obj.AccountName = "Unavailable"
+		}
+
+		if len(obj.DeviceInfo) == 0 {
+			obj.DeviceInfo = "Unavailable"
+		}
+		arrObj = append(arrObj, obj)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = arrObj
 
 	return res, nil
 }
@@ -231,12 +349,37 @@ func EditUser(userCredentials string, expireDate int, profile string, sessionTim
 	res.Data = ""
 	return res, nil
 }
-func UnmarshalTemperatures(data []byte) (Temperatures, error) {
-	var r Temperatures
-	err := json.Unmarshal(data, &r)
-	return r, err
-}
 
-func (r *Temperatures) Marshal() ([]byte, error) {
-	return json.Marshal(r)
+func GetUserProfile() (Response, error) {
+	var obj UserProfile
+	var arrObj []UserProfile
+	var res Response
+
+	con := db.CreateRadiusCon()
+
+	sqlStatement := "SELECT username,groupname from radusergroup"
+
+	result, err := con.Query(sqlStatement)
+
+	defer result.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	for result.Next() {
+		err = result.Scan(&obj.Username, &obj.Groupname)
+
+		if err != nil {
+			return res, nil
+		}
+
+		arrObj = append(arrObj, obj)
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = arrObj
+
+	return res, nil
 }

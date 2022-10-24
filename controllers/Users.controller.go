@@ -71,3 +71,35 @@ func EditUserController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetUserProfileController(c echo.Context) error {
+	result, err := models.GetUserProfile()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetUserInfoController(c echo.Context) error {
+	userCredentials := c.FormValue("mac")
+
+	result, err := models.GetUserInfo(userCredentials)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllUsersInfoController(c echo.Context) error {
+	result, err := models.GetAllUsersInfo()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
